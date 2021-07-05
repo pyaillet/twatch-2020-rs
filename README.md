@@ -1,5 +1,27 @@
+# T-Watch-2020 with Rust
 
-# Rust on the xtensa architecture
+This project tries to provide a minimal firmware implementation for the 
+[T-Watch-2020](http://www.lilygo.cn/prod_view.aspx?TypeId=50053&Id=1290&FId=t3:50053:3)
+but in Rust.
+
+## What's working ?
+
+ - [ ] PMU: AXP202
+ - [ ] Power button
+ - [x] Vibration
+ - [ ] ST7789V
+ - [ ] BMA423 Axis Sensor
+ - [ ] I2S Class Max98357A
+ - [ ] IR
+ - [ ] Touch board
+ - [ ] Real time clock
+ - [ ] BLE
+ - [ ] WiFi
+
+
+## Reference
+
+This project started with a fork from https://github.com/MabezDev/xtensa-rust-quickstart
 
 Need help? Join the esp-rs room on matrix, https://matrix.to/#/#esp-rs:matrix.org.
 
