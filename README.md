@@ -6,10 +6,10 @@ but in Rust.
 
 ## What's working ?
 
- - [ ] PMU: AXP202
+ - [x] PMU: AXP202 - Partial, see https://github.com/pyaillet/axp20x-rs
  - [ ] Power button
  - [x] Vibration
- - [ ] ST7789V
+ - [x] ST7789V - Partial, see https://github.com/almindor/st7789
  - [ ] BMA423 Axis Sensor
  - [ ] I2S Class Max98357A
  - [ ] IR
