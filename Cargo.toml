@@ -5,13 +5,21 @@ authors = ["Scott Mabin <scott@mabez.dev>"]
 edition = "2018"
 
 [dependencies]
-xtensa-lx-rt = "0.5.0"
-xtensa-lx = "0.3.0"
-panic-halt = "0.2.0"
+xtensa-lx-rt = "0.5"
+xtensa-lx = "0.3"
+panic-halt = "0.2"
+st7789 = { git = "https://github.com/almindor/st7789.git", branch = "master", features = ["graphics"] }
+axp20x = { git = "https://github.com/pyaillet/axp20x-rs.git", branch = "main" }
+display-interface = "0.4"
+display-interface-spi = "0.4"
+embedded-hal = "0.2"
+embedded-graphics = "0.6"
+nb = "0.1"
 
 # because we cant have optional dev-deps, these must go here
-esp32-hal = { version = "0.2.0", optional = true }
-esp8266-hal = { version = "0.4.0", optional = true }
+esp32 = { version = "0.10", optional = true }
+esp32-hal = { git = "https://github.com/esp-rs/esp32-hal.git", branch = "master", optional = true }
+esp8266-hal = { version = "0.4", optional = true }
 
 [[example]]
 name = "esp32"
