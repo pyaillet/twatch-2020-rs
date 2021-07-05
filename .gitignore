@@ -6,4 +6,4 @@ Cargo.lock
 core
 svd/
 
-setenv
+/setenv
