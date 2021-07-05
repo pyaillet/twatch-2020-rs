@@ -5,3 +5,5 @@ Cargo.lock
 .vscode/.cortex-debug.registers.state.json
 core
 svd/
+
+setenv
