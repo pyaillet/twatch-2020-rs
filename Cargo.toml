@@ -18,4 +18,4 @@ heapless = "0.7"
 esp32 = { version = "0.10" }
 esp32-hal = { git = "https://github.com/esp-rs/esp32-hal.git", branch = "master" }
 
-twatch = { path = "../twatch-rs" }
+twatch = { git = "https://github.com/pyaillet/twatch-lib-rs", branch = "main" }
