@@ -2,10 +2,9 @@
 #![no_main]
 #![feature(stmt_expr_attributes)]
 
-use core::{self, panic::PanicInfo};
+use core::{self, panic::PanicInfo, fmt::Write};
 use embedded_graphics::{
     draw_target::DrawTarget,
-    image::*,
     mono_font::{ascii::FONT_6X10, MonoTextStyle},
     pixelcolor::Rgb565,
     prelude::*,
@@ -16,54 +15,7 @@ use esp32_hal::{prelude::*, target};
 
 use twatch::{self, dprint, dprintln, TWatchError};
 
-macro_rules! digit_to_u8 {
-    ($num:expr, $rank:expr) => {
-        if $num >= $rank || $rank == 1 {
-            ((($num / $rank) % 10) + 48) as u8
-        } else {
-            32
-        }
-    };
-}
-
-macro_rules! number_to_str {
-    ($num:expr) => {
-        core::str::from_utf8(&[
-            digit_to_u8!($num, 1000000),
-            digit_to_u8!($num, 100000),
-            digit_to_u8!($num, 10000),
-            digit_to_u8!($num, 1000),
-            digit_to_u8!($num, 100),
-            digit_to_u8!($num, 10),
-            digit_to_u8!($num, 1),
-        ])
-        .unwrap()
-    };
-}
-
-macro_rules! u8_to_str {
-    ($num:expr) => {
-        core::str::from_utf8(&[
-            digit_to_u8!($num, 100),
-            digit_to_u8!($num, 10),
-            digit_to_u8!($num, 1),
-        ])
-        .unwrap()
-    };
-}
-
-macro_rules! percentage_to_str {
-    ($num:expr) => {
-        core::str::from_utf8(&[
-            digit_to_u8!($num, 100),
-            digit_to_u8!($num, 10),
-            digit_to_u8!($num, 1),
-            32,
-            37,
-        ])
-        .unwrap()
-    };
-}
+use heapless::String;
 
 fn display_debug(twatch: &mut twatch::TWatch) -> Result<(), TWatchError> {
     let style = MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
@@ -71,7 +23,7 @@ fn display_debug(twatch: &mut twatch::TWatch) -> Result<(), TWatchError> {
     let charge = if twatch
         .pmu
         .is_charging()
-        .map_err(|_e| TWatchError::DisplayError)?
+        .map_err(|_e| TWatchError::PMUError)?
     {
         "Charging... "
     } else {
@@ -80,7 +32,7 @@ fn display_debug(twatch: &mut twatch::TWatch) -> Result<(), TWatchError> {
     let battery = if twatch
         .pmu
         .is_battery_connect()
-        .map_err(|_e| TWatchError::DisplayError)?
+        .map_err(|_e| TWatchError::PMUError)?
     {
         "Battery connected    "
     } else {
@@ -88,18 +40,21 @@ fn display_debug(twatch: &mut twatch::TWatch) -> Result<(), TWatchError> {
     };
     let percentage = twatch
         .get_battery_percentage()
-        .map_err(|_e| TWatchError::DisplayError)?;
-    dprint!("{}%\r\n", percentage);
+        .map_err(|_e| TWatchError::PMUError)?;
+
+    let mut percentage_str: String<5> = String::new();
+    write!(percentage_str, "{} %", format_args!("{}", percentage)).unwrap();
+
     Text::new(charge, Point::new(40, 75), style)
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
     Text::new(battery, Point::new(40, 85), style)
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
-    Text::new(percentage_to_str!(percentage), Point::new(40, 95), style)
+    Text::new(percentage_str.as_str(), Point::new(40, 95), style)
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
-    twatch::sleep(1000000_u32.us());
+    twatch::sleep(1_000_000_u32.us());
     twatch
         .display
         .clear(Rgb565::BLACK)
@@ -120,19 +75,6 @@ fn main() -> ! {
         .unwrap();
 
     dprintln!("\n\nESP32 Started\n\n");
-
-    let raw_image_data: ImageRawLE<Rgb565> =
-        ImageRawLE::new(include_bytes!("../assets/ferris.raw"), 86);
-    let ferris = Image::new(&raw_image_data, Point::new(34, 8));
-    // draw image on black background
-    match twatch.display.clear(Rgb565::BLACK) {
-        Ok(()) => dprint!("Ok\r\n"),
-        Err(_e) => dprint!("KO\r\n"),
-    };
-    match ferris.draw(&mut twatch.display) {
-        Ok(()) => dprint!("Ok\r\n"),
-        Err(_e) => dprint!("KO\r\n"),
-    };
 
     loop {
         match display_debug(&mut twatch) {
