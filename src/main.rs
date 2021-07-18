@@ -2,7 +2,7 @@
 #![no_main]
 #![feature(stmt_expr_attributes)]
 
-use core::{self, panic::PanicInfo, fmt::Write};
+use core::{self, fmt::Write, panic::PanicInfo};
 use embedded_graphics::{
     draw_target::DrawTarget,
     mono_font::{ascii::FONT_6X10, MonoTextStyle},
@@ -17,7 +17,7 @@ use twatch::{self, dprint, dprintln, TWatchError};
 
 use heapless::String;
 
-fn display_debug(twatch: &mut twatch::TWatch) -> Result<(), TWatchError> {
+fn display_debug(twatch: &mut twatch::TWatch<'static>) -> Result<(), TWatchError> {
     let style = MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
 
     let charge = if twatch
@@ -45,6 +45,18 @@ fn display_debug(twatch: &mut twatch::TWatch) -> Result<(), TWatchError> {
     let mut percentage_str: String<5> = String::new();
     write!(percentage_str, "{} %", format_args!("{}", percentage)).unwrap();
 
+    let time = twatch
+        .rtc
+        .get_datetime()
+        .map_err(|_| TWatchError::RTCError)?;
+    let mut time_str: String<5> = String::new();
+    write!(
+        time_str,
+        "{}",
+        format_args!("{}:{}", &time.hours, &time.minutes)
+    )
+    .unwrap();
+
     Text::new(charge, Point::new(40, 75), style)
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
@@ -52,6 +64,9 @@ fn display_debug(twatch: &mut twatch::TWatch) -> Result<(), TWatchError> {
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
     Text::new(percentage_str.as_str(), Point::new(40, 95), style)
+        .draw(&mut twatch.display)
+        .map_err(|_e| TWatchError::DisplayError)?;
+    Text::new(time_str.as_str(), Point::new(40, 115), style)
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
     twatch::sleep(1_000_000_u32.us());
