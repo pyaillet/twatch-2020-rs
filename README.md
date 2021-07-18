@@ -14,7 +14,7 @@ but in Rust.
  - [ ] I2S Class Max98357A
  - [ ] IR
  - [ ] Touch board
- - [ ] Real time clock
+ - [X] Real time clock - see https://github.com/nebelgrau77/pcf8563-rs
  - [ ] BLE
  - [ ] WiFi
 
