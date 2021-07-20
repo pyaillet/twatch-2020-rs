@@ -5,7 +5,10 @@
 use core::{self, fmt::Write, panic::PanicInfo};
 use embedded_graphics::{
     draw_target::DrawTarget,
-    mono_font::{ascii::FONT_6X10, MonoTextStyle},
+    mono_font::{
+        ascii::{FONT_10X20, FONT_6X10},
+        MonoTextStyle,
+    },
     pixelcolor::Rgb565,
     prelude::*,
     text::Text,
@@ -19,6 +22,7 @@ use heapless::String;
 
 fn display_debug(twatch: &mut twatch::TWatch<'static>) -> Result<(), TWatchError> {
     let style = MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
+    let style_big = MonoTextStyle::new(&FONT_10X20, Rgb565::WHITE);
 
     let charge = if twatch
         .pmu
@@ -29,6 +33,8 @@ fn display_debug(twatch: &mut twatch::TWatch<'static>) -> Result<(), TWatchError
     } else {
         "Not charging"
     };
+    dprintln!("{}\r", charge);
+
     let battery = if twatch
         .pmu
         .is_battery_connect()
@@ -38,24 +44,31 @@ fn display_debug(twatch: &mut twatch::TWatch<'static>) -> Result<(), TWatchError
     } else {
         "Battery not connected"
     };
+    dprintln!("{}\r", battery);
+
     let percentage = twatch
         .get_battery_percentage()
         .map_err(|_e| TWatchError::PMUError)?;
 
     let mut percentage_str: String<5> = String::new();
     write!(percentage_str, "{} %", format_args!("{}", percentage)).unwrap();
+    dprintln!("{}\r", percentage_str);
 
     let time = twatch
         .rtc
         .get_datetime()
         .map_err(|_| TWatchError::RTCError)?;
-    let mut time_str: String<5> = String::new();
+    let mut time_str: String<8> = String::new();
     write!(
         time_str,
         "{}",
-        format_args!("{}:{}", &time.hours, &time.minutes)
+        format_args!(
+            "{:>2}:{:02}:{:02}",
+            &time.hours, &time.minutes, &time.seconds
+        )
     )
     .unwrap();
+    dprintln!("{}\r", time_str);
 
     Text::new(charge, Point::new(40, 75), style)
         .draw(&mut twatch.display)
@@ -66,7 +79,7 @@ fn display_debug(twatch: &mut twatch::TWatch<'static>) -> Result<(), TWatchError
     Text::new(percentage_str.as_str(), Point::new(40, 95), style)
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
-    Text::new(time_str.as_str(), Point::new(40, 115), style)
+    Text::new(time_str.as_str(), Point::new(40, 115), style_big)
         .draw(&mut twatch.display)
         .map_err(|_e| TWatchError::DisplayError)?;
     twatch::sleep(1_000_000_u32.us());
