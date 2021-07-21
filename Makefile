@@ -13,8 +13,8 @@ watch: flash
 
 .PHONY: flash
 flash: build
-	cargo espflash --chip esp32 --speed $(SPEED) --features=$(FEATURES) $(DEVICE)
+	cargo espflash --release --chip esp32 --speed $(SPEED) --features=$(FEATURES) $(DEVICE)
 
 .PHONY: build
 build:
-	cargo xbuild --features=$(FEATURES)
+	cargo xbuild --features=$(FEATURES) --release
