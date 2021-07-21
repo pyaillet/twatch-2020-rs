@@ -54,11 +54,7 @@ fn display_debug(twatch: &mut twatch::TWatch<'static>) -> Result<(), TWatchError
     let style = SimpleWatchfaceStyle::default();
 
     let watchface = Watchface::build()
-        .with_time(Time {
-            hours_local: time.hours,
-            minutes_local: time.minutes,
-            seconds_local: time.seconds,
-        })
+        .with_time(Time::from_values(time.hours, time.minutes, time.seconds))
         .with_battery(StateOfCharge::from_percentage(percentage))
         .with_charger(charger_state)
         .into_styled(style);
