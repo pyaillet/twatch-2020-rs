@@ -20,5 +20,4 @@ esp32-hal = { git = "https://github.com/esp-rs/esp32-hal.git", branch = "master"
 
 twatch = { git = "https://github.com/pyaillet/twatch-lib-rs", branch = "main" }
 
-#watchface = { version = "0.3", default-features = false }
-watchface = { git = "https://github.com/pyaillet/rust-watchface", branch = "upgrade_eg", default-features = false }
+watchface = { version = "0.4", default-features = false }
